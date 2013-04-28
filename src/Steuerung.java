@@ -8,7 +8,7 @@ public class Steuerung {
 	 */
 	Oberflaeche gui;
 	DateiEinlesen read;
-	Datei datei;
+	Programm programm;
 	FileChooser chooser;
 	
 	public Steuerung (){
@@ -23,7 +23,10 @@ public class Steuerung {
 	
 	private void leseDatei(String pfad){
 		read = new DateiEinlesen();
-		datei = new Datei(read.getDatei(pfad));
+		programm = new Programm(read.getDatei(pfad));
+		for (int i=0; i < programm.getDatei().size(); i++){
+			gui.setZeile(programm.getDatei().get(i));
+		}
 	}
 
 }
