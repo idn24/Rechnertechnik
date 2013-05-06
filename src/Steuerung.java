@@ -7,7 +7,7 @@ public class Steuerung {
 	 * @param args
 	 */
 	Oberflaeche gui;
-	DateiEinlesen read;
+	FileHandler read;
 	Programm programm;
 	FileChooser chooser;
 	private Befehle befehle;
@@ -25,7 +25,7 @@ public class Steuerung {
 	}
 	
 	private void leseDatei(String pfad){
-		read = new DateiEinlesen();
+		read = new FileHandler();
 		programm = new Programm(read.getDatei(pfad));
 		for (int i=0; i < programm.getDatei().size(); i++){
 			gui.setZeile(programm.getDatei().get(i));

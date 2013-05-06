@@ -5,7 +5,7 @@ import java.io.IOException;
 import java.util.ArrayList;
 
 
-public class DateiEinlesen {
+public class FileHandler {
 
 	ArrayList<String> datei = new ArrayList<String>();
 	
