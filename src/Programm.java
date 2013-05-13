@@ -6,9 +6,14 @@ public class Programm {
 
 	ArrayList<String> datei;
 	HashMap<Integer, Integer> opcode = new HashMap<Integer,Integer>();
+	HashMap<Integer, Integer> zeile = new HashMap<Integer,Integer>();
 	
 	public int getOpcode(int progZaehler){
 		return opcode.get(progZaehler);
+	}
+	
+	public int getZeile(int progZaehler){
+		return zeile.get(progZaehler);
 	}
 	
 	
@@ -25,6 +30,7 @@ public class Programm {
 			String vgl = datei.get(i);
 			if(vgl.startsWith("0")){
 				opcode.put((int)Integer.parseInt(vgl.substring(0, 4),16), (int)Integer.parseInt(vgl.substring(5, 9), 16));
+				zeile.put((int)Integer.parseInt(vgl.substring(0, 4),16), (int)Integer.parseInt(vgl.substring(20,25)));
 			}
 		}
 	}

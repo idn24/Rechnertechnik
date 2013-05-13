@@ -34,6 +34,7 @@ import java.awt.Color;
 import java.awt.SystemColor;
 import java.util.Vector;
 import java.awt.GridLayout;
+import java.awt.Label;
 
 
 public class Oberflaeche extends JFrame {
@@ -87,13 +88,13 @@ public class Oberflaeche extends JFrame {
 		JButton btnNaechsterSchritt = new JButton("N\u00E4chster Schritt");
 		btnNaechsterSchritt.setPreferredSize(new Dimension(140, 30));
 		btnNaechsterSchritt.addActionListener(new ActionListener() {
-			
+
 			@Override
 			public void actionPerformed(ActionEvent e) {
-				Oberflaeche.this.strg.nextStep();
-				
+			Oberflaeche.this.strg.nextStep();
+
 			}
-		});
+			});
 		panelButtons.add(btnNaechsterSchritt);
 		
 		JButton btnVorherigerSchritt = new JButton("Vorheriger Schritt");
@@ -170,17 +171,17 @@ public class Oberflaeche extends JFrame {
 	      panelPorts.add(txtPorts, BorderLayout.PAGE_START);
 	      */
 		
-	      
+		Label label = new Label("Ports");
+	      panelPorts.add(label, BorderLayout.NORTH);
 	      
 	      String[][] DatenPorts = {
 				    { "RA", "7", "6", "5", "4", "3", "2", "1", "0" }, { "Tris", "0", "0", "0", "0", "0", "0", "0", "0" }, { "Pin", "0", "0", "0", "0", "0", "0", "0", "0" },
 				    { "RB", "7", "6", "5", "4", "3", "2", "1", "0" }, { "Tris", "0", "0", "0", "0", "0", "0", "0", "0" }, { "Pin", "0", "0", "0", "0", "0", "0", "0", "0" },
 				    { "RC", "7", "6", "5", "4", "3", "2", "1", "0" }, { "Tris", "0", "0", "0", "0", "0", "0", "0", "0" }, { "Pin", "0", "0", "0", "0", "0", "0", "0", "0" },
-				    { "RD", "7", "6", "5", "4", "3", "2", "1", "0" }, { "Tris", "0", "0", "0", "0", "0", "0", "0", "0" }, { "Pin", "0", "0", "0", "0", "0", "0", "0", "0" },
-				    { "RE", "7", "6", "5", "4", "3", "2", "1", "0" }, { "Tris", "0", "0", "0", "0", "0", "0", "0", "0" }, { "Pin", "0", "0", "0", "0", "0", "0", "0", "0" },
+				    
 	      };
 	      String[] TitelPorts = {
-					"ports1", "ports2", "ports3", "ports4", "ports5", "ports6", "ports7", "ports8", "ports9"
+	    		  "ports0", "ports1", "ports2", "ports3", "ports4", "ports5", "ports6", "ports7", "ports8"
 	      };
 	      JTable tablePorts = new JTable (DatenPorts, TitelPorts );
 	      tablePorts.setBackground(new Color(240, 240, 240));
@@ -196,26 +197,28 @@ public class Oberflaeche extends JFrame {
 	      columnModel.getColumn( 6 ).setPreferredWidth( 20 );
 	      columnModel.getColumn( 7 ).setPreferredWidth( 20 );
 	      panelPorts.add(tablePorts);
+	      
+	      
+	      
+	      
+	      
 
 	      
 	      
 // ########################## Speicher ##############################################
 
 	      
-	      JPanel panelSpeicher = new JPanel();
-	      panelSpeicher.setBorder(BorderFactory.createLineBorder(Color.BLACK));
-	      FlowLayout flowLayout = (FlowLayout) panelSpeicher.getLayout();
-	      flowLayout.setAlignment(FlowLayout.LEFT);
-	      panelSpeicher.setBounds(700, 260, 535, 200);
-	      contentPane.add(panelSpeicher);
+	      
+	      
 
 	      
-	      String[][] DatenSpeicher = new String[][]{{"0", "1", "2", "3", "4", "5", "6"}};
-	      String[] TitelSpeicher = new String[]{"00", "01", "02", "03", "04", "05", "06"};
-	      JTable tableSpeicher = new JTable (DatenSpeicher, TitelSpeicher );
+
+	      String[] TitelSpeicher = new String[]{" ", "00", "01", "02", "03", "04", "05", "06", "07"};
+	      JTable tableSpeicher = new JTable (strg.getRegisterArray(), TitelSpeicher );
+	      tableSpeicher.setBackground(new Color(240, 240, 240));
 	      tableSpeicher.setBounds(710, 270, 525, 16);
 	      tableSpeicher.setEnabled(false);
-	      panelSpeicher.add(tableSpeicher);
+	      
 	      
 	      
 	      
@@ -223,13 +226,31 @@ public class Oberflaeche extends JFrame {
 	      TableColumnModel columnModel2 = tableSpeicher.getColumnModel();
           
 	      // Die einzelnen Columns ansprechen und die Grösse setzen
-	      columnModel2.getColumn( 0 ).setPreferredWidth( 10 );
-	      columnModel2.getColumn( 1 ).setPreferredWidth( 10 );
-	      columnModel2.getColumn( 2 ).setPreferredWidth( 10 );
-	      columnModel2.getColumn( 3 ).setPreferredWidth( 10 );
-	      columnModel2.getColumn( 4 ).setPreferredWidth( 10 );
-	      columnModel2.getColumn( 5 ).setPreferredWidth( 10 );
-	      columnModel2.getColumn( 6 ).setPreferredWidth( 10 );
+	      columnModel2.getColumn( 0 ).setPreferredWidth( 40 );
+	      columnModel2.getColumn( 1 ).setPreferredWidth( 40 );
+	      columnModel2.getColumn( 2 ).setPreferredWidth( 40 );
+	      columnModel2.getColumn( 3 ).setPreferredWidth( 40 );
+	      columnModel2.getColumn( 4 ).setPreferredWidth( 40 );
+	      columnModel2.getColumn( 5 ).setPreferredWidth( 40 );
+	      columnModel2.getColumn( 6 ).setPreferredWidth( 40 );
+	      columnModel2.getColumn( 7 ).setPreferredWidth( 40 );
+	      columnModel2.getColumn( 8 ).setPreferredWidth( 40 );
+	      
+	      
+	      
+	      
+	      
+	      
+	      
+	      JScrollPane scrollpaneSpeicher = new JScrollPane(tableSpeicher);
+			scrollpaneSpeicher.setBorder(BorderFactory.createLineBorder(Color.BLACK));
+			
+			scrollpaneSpeicher.setBounds(700, 260, 535, 373);
+			contentPane.add(scrollpaneSpeicher);
+	      
+	      
+	      
+	      
 	      
 	      
 	      

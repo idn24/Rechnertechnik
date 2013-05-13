@@ -227,5 +227,55 @@ public class Steuerung {
 	public void pushCall(){
 		register.setStack(register.getPC()+1);
 	}
+	
+	public String[][] getRegisterArray()
+	{
+		System.out.println(getRegister()[1]);
+		
+		String[][] DatenSpeicher = new String[32][9];
+		DatenSpeicher[0][0]="00";
+		DatenSpeicher[1][0]="08";
+		DatenSpeicher[2][0]="10";
+		DatenSpeicher[3][0]="18";
+		DatenSpeicher[4][0]="20";
+		DatenSpeicher[5][0]="28";
+		DatenSpeicher[6][0]="30";
+		DatenSpeicher[7][0]="38";
+		DatenSpeicher[8][0]="40";
+		DatenSpeicher[9][0]="48";
+		DatenSpeicher[10][0]="50";
+		DatenSpeicher[11][0]="58";
+		DatenSpeicher[12][0]="60";
+		DatenSpeicher[13][0]="68";
+		DatenSpeicher[14][0]="70";
+		DatenSpeicher[15][0]="78";
+		DatenSpeicher[16][0]="80";
+		DatenSpeicher[17][0]="88";
+		DatenSpeicher[18][0]="90";
+		DatenSpeicher[19][0]="98";
+		DatenSpeicher[20][0]="A0";
+		DatenSpeicher[21][0]="A8";
+		DatenSpeicher[22][0]="B0";
+		DatenSpeicher[23][0]="B8";
+		DatenSpeicher[24][0]="C0";
+		DatenSpeicher[25][0]="C8";
+		DatenSpeicher[26][0]="D0";
+		DatenSpeicher[27][0]="D8";
+		DatenSpeicher[28][0]="E0";
+		DatenSpeicher[29][0]="E8";
+		DatenSpeicher[30][0]="F0";
+		DatenSpeicher[31][0]="F8";
+		int k = 0;
+		for(int i=0; i<32; i++)
+		{
+			for(int j=1; j<9; j++)
+			{
+				DatenSpeicher[i][j] = Integer.toHexString((int) getRegister()[k]);
+				k++;
+	
+			}
+		}
+		return DatenSpeicher;
+	}
 
 }
