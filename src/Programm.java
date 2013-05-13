@@ -5,7 +5,11 @@ import java.util.HashMap;
 public class Programm {
 
 	ArrayList<String> datei;
-	HashMap<String, Integer> opcode = new HashMap<String,Integer>();
+	HashMap<Integer, Integer> opcode = new HashMap<Integer,Integer>();
+	
+	public int getOpcode(int progZaehler){
+		return opcode.get(progZaehler);
+	}
 	
 	
 	public Programm(ArrayList<String> datei) {
@@ -19,8 +23,8 @@ public class Programm {
 	private void selectOpcode(){
 		for(int i = 0; i<datei.size();i++){
 			String vgl = datei.get(i);
-			if(!vgl.startsWith(" ")){
-				opcode.put(vgl.substring(19, 25), (int)Integer.parseInt(vgl.substring(5, 9), 16));
+			if(vgl.startsWith("0")){
+				opcode.put((int)Integer.parseInt(vgl.substring(0, 4),16), (int)Integer.parseInt(vgl.substring(5, 9), 16));
 			}
 		}
 	}
