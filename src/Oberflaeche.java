@@ -21,10 +21,14 @@ import java.awt.Panel;
 import java.awt.Button;
 import java.awt.event.ActionListener;
 import java.awt.event.ActionEvent;
+import java.awt.event.MouseAdapter;
+import java.awt.event.MouseEvent;
+
 import javax.swing.JButton;
 import java.awt.FlowLayout;
 
 import javax.swing.BorderFactory;
+import javax.swing.JScrollBar;
 import javax.swing.JScrollPane;
 import javax.swing.JTextArea;
 import javax.swing.JTextField;
@@ -40,6 +44,7 @@ import java.awt.Label;
 public class Oberflaeche extends JFrame {
 
 	public Steuerung strg;
+	private JTable tableSpeicher;
 	private JPanel contentPane;
 	private JTable table;
 	private JTable table_1;
@@ -47,6 +52,13 @@ public class Oberflaeche extends JFrame {
 	private JTable tableDatei;
 	private DefaultTableModel Modell;
 	private JTextField txtPorts;
+	private String[] TitelSpeicher;
+	private String[] TitelPortsRC;
+	private int aktuelleZeile = 0;
+	private DefaultTableModel tabModel;
+	private JScrollPane scrollpaneSpeicher;
+	private JScrollPane scrollpaneText;
+	private JTable tablePortsRA;
 
 
 	/**
@@ -65,48 +77,58 @@ public class Oberflaeche extends JFrame {
 		JPanel panelButtons = new JPanel();
 		panelButtons.setBorder(BorderFactory.createLineBorder(Color.BLACK));
 		
-		panelButtons.setBounds(25, 20, 150, 220);
+		panelButtons.setBounds(591, 11, 683, 50);
 		contentPane.add(panelButtons);
-		panelButtons.setLayout(new FlowLayout(FlowLayout.CENTER, 5, 5));
+		panelButtons.setLayout(new FlowLayout(FlowLayout.CENTER, 5, 10));
 		
 		JButton btnEinlesen = new JButton("Datei einlesen");
-		btnEinlesen.setPreferredSize(new Dimension(140, 30));
+		btnEinlesen.setPreferredSize(new Dimension(130, 30));
 		btnEinlesen.addActionListener(new ActionListener() {
 			
 			@Override
 			public void actionPerformed(ActionEvent e) {
 				Oberflaeche.this.strg.oeffneDatei();
-				
 			}
 		});
 		panelButtons.add(btnEinlesen);
 		
 		JButton btnAusfuehren = new JButton("Ausf\u00FChren");
-		btnAusfuehren.setPreferredSize(new Dimension(140, 30));
+		btnAusfuehren.setPreferredSize(new Dimension(130, 30));
+		btnAusfuehren.addActionListener(new ActionListener() {
+
+			@Override
+			public void actionPerformed(ActionEvent e) {
+				Oberflaeche.this.strg.startTimer();
+			}
+		});
 		panelButtons.add(btnAusfuehren);
 		
 		JButton btnNaechsterSchritt = new JButton("N\u00E4chster Schritt");
-		btnNaechsterSchritt.setPreferredSize(new Dimension(140, 30));
+		btnNaechsterSchritt.setPreferredSize(new Dimension(130, 30));
 		btnNaechsterSchritt.addActionListener(new ActionListener() {
 
 			@Override
 			public void actionPerformed(ActionEvent e) {
 			Oberflaeche.this.strg.nextStep();
-
+			Oberflaeche.this.strg.setMarkierungtxt();
+			Oberflaeche.this.strg.refreshRegister();
 			}
-			});
+		});
 		panelButtons.add(btnNaechsterSchritt);
 		
-		JButton btnVorherigerSchritt = new JButton("Vorheriger Schritt");
-		btnVorherigerSchritt.setPreferredSize(new Dimension(140, 30));
-		panelButtons.add(btnVorherigerSchritt);
-		
 		JButton btnPause = new JButton("Pause");
-		btnPause.setPreferredSize(new Dimension(140, 30));
+		btnPause.setPreferredSize(new Dimension(130, 30));
+		btnPause.addActionListener(new ActionListener() {
+
+			@Override
+			public void actionPerformed(ActionEvent e) {
+			Oberflaeche.this.strg.stopTimer();
+			}
+		});
 		panelButtons.add(btnPause);
 		
 		JButton btnReset = new JButton("Reset");
-		btnReset.setPreferredSize(new Dimension(140, 30));
+		btnReset.setPreferredSize(new Dimension(130, 30));
 		btnReset.addActionListener(new ActionListener() {
 			public void actionPerformed(ActionEvent e) {
 			}
@@ -116,25 +138,13 @@ public class Oberflaeche extends JFrame {
 		
 		// ########################## Textdatei ##############################################
 		String[][] text = new String[][]{{""}};
-		String [] tabellenkopf = new String[]{"Textdatei"};
-		tableDatei = new JTable( text, tabellenkopf );
-		
-		tableDatei.setEnabled(false);
-		
+		String [] tabellenkopf = new String[]{"Programmcode"};
 		Modell = new DefaultTableModel(text, tabellenkopf);
-		tableDatei.setModel(Modell);
-		
-		
-		
-		//nächste Zeile markiert immer eine/mehrere bestimmten Zeilen
-		//tableDatei.addRowSelectionInterval(1, 1);
-		
-		
-		
-		JScrollPane scrollpaneText = new JScrollPane(tableDatei);
+		tableDatei = new JTable( Modell );
+		tableDatei.setEnabled(false);
+		scrollpaneText = new JScrollPane(tableDatei);
 		scrollpaneText.setBorder(BorderFactory.createLineBorder(Color.BLACK));
-		
-		scrollpaneText.setBounds(293, 20, 700, 200);
+		scrollpaneText.setBounds(10, 11, 571, 622);
 		contentPane.add(scrollpaneText);
 		
 		
@@ -144,119 +154,116 @@ public class Oberflaeche extends JFrame {
 		
 		
 		// ########################## Ports ##############################################
-		JPanel panelPorts = new JPanel();
-		panelPorts.setBounds(25, 260, 516, 300);
-		panelPorts.setBorder(BorderFactory.createLineBorder(Color.BLACK));
-		panelPorts.setLayout(new BorderLayout(5, 5));
-		contentPane.add(panelPorts);
 		
 	      
-	      
-	      /*JTextPane textPorts = new JTextPane();
-	      textPorts.setBackground(new Color(240, 240, 240));
-	      textPorts.setEnabled(false);
-	      textPorts.setEditable(false);
-	      textPorts.setText("Ports");
-	      panelPorts.add(textPorts, BorderLayout.PAGE_START);
-	      
-	      
-	      
-	      txtPorts = new JTextField();
-	      txtPorts.setEditable(false);
-	      txtPorts.setForeground(Color.BLACK);
-	      //txtPorts.setBackground();
-	      txtPorts.setEnabled(false);
-	      txtPorts.setText("Ports");
-	      txtPorts.setColumns(30);
-	      panelPorts.add(txtPorts, BorderLayout.PAGE_START);
-	      */
-		
-		Label label = new Label("Ports");
-	      panelPorts.add(label, BorderLayout.NORTH);
-	      
-	      String[][] DatenPorts = {
-				    { "RA", "7", "6", "5", "4", "3", "2", "1", "0" }, { "Tris", "0", "0", "0", "0", "0", "0", "0", "0" }, { "Pin", "0", "0", "0", "0", "0", "0", "0", "0" },
-				    { "RB", "7", "6", "5", "4", "3", "2", "1", "0" }, { "Tris", "0", "0", "0", "0", "0", "0", "0", "0" }, { "Pin", "0", "0", "0", "0", "0", "0", "0", "0" },
-				    { "RC", "7", "6", "5", "4", "3", "2", "1", "0" }, { "Tris", "0", "0", "0", "0", "0", "0", "0", "0" }, { "Pin", "0", "0", "0", "0", "0", "0", "0", "0" },
-				    
+	      String[][] DatenPortsRA = {
+				    { "Tris", "0", "0", "0", "0", "0", "0", "0", "0" }, { "Pin", "0", "0", "0", "0", "0", "0", "0", "0" },
 	      };
-	      String[] TitelPorts = {
-	    		  "ports0", "ports1", "ports2", "ports3", "ports4", "ports5", "ports6", "ports7", "ports8"
+	      String[] TitelPortsRA = {"RA", "7", "6", "5", "4", "3", "2", "1", "0"};
+	      tablePortsRA = new JTable (DatenPortsRA, TitelPortsRA );
+	      tablePortsRA.setBackground(new Color(240, 240, 240));
+	      tablePortsRA.addMouseListener(new MouseAdapter() {
+	    	  public void mouseclicked(MouseEvent e){
+	    		  System.out.println("Reihe" + Oberflaeche.this.tablePortsRA.columnAtPoint(e.getPoint()));
+	    		  //System.out.println("Spalte" + Oberflaeche.this.tablePortsRA.getSelectedColumn());
+	    	  }
+	      });
+	      TableColumnModel columnModelRA = tablePortsRA.getColumnModel();
+	      columnModelRA.getColumn( 0 ).setPreferredWidth( 200 );
+	      JScrollPane scrollpaneRA = new JScrollPane(tablePortsRA);
+	      scrollpaneRA.setBounds(10, 10, 220, 55);
+	      
+	      
+	      
+	      
+	      String[][] DatenPortsRB = {
+				    { "Tris", "0", "0", "0", "0", "0", "0", "0", "0" }, { "Pin", "0", "0", "0", "0", "0", "0", "0", "0" },
 	      };
-	      JTable tablePorts = new JTable (DatenPorts, TitelPorts );
-	      tablePorts.setBackground(new Color(240, 240, 240));
-	      tablePorts.setEnabled(false);
-	      TableColumnModel columnModel = tablePorts.getColumnModel();
-	      // Die einzelnen Columns ansprechen und die Grösse setzen
-	      columnModel.getColumn( 0 ).setPreferredWidth( 80 );
-	      columnModel.getColumn( 1 ).setPreferredWidth( 20 );
-	      columnModel.getColumn( 2 ).setPreferredWidth( 20 );
-	      columnModel.getColumn( 3 ).setPreferredWidth( 20 );
-	      columnModel.getColumn( 4 ).setPreferredWidth( 20 );
-	      columnModel.getColumn( 5 ).setPreferredWidth( 20 );
-	      columnModel.getColumn( 6 ).setPreferredWidth( 20 );
-	      columnModel.getColumn( 7 ).setPreferredWidth( 20 );
-	      panelPorts.add(tablePorts);
+	      String[] TitelPortsRB = {"RB", "7", "6", "5", "4", "3", "2", "1", "0"};
+	      JTable tablePortsRB = new JTable (DatenPortsRB, TitelPortsRB );
+	      tablePortsRB.setBackground(new Color(240, 240, 240));
+	      tablePortsRB.setEnabled(false);
+	      TableColumnModel columnModelRB = tablePortsRB.getColumnModel();
+	      columnModelRB.getColumn( 0 ).setPreferredWidth( 200 );
+	      JScrollPane scrollpaneRB = new JScrollPane(tablePortsRB);
+	      scrollpaneRB.setBounds(10, 75, 220, 55);
 	      
 	      
 	      
+	      String[][] DatenPortsRC = {
+				    { "Tris", "0", "0", "0", "0", "0", "0", "0", "0" }, { "Pin", "0", "0", "0", "0", "0", "0", "0", "0" },
+	      };
+	      TitelPortsRC = new String[]{"RC", "7", "6", "5", "4", "3", "2", "1", "0"};
+	      DefaultTableModel tabModelRC = new DefaultTableModel(DatenPortsRC, TitelPortsRC);
+	      JTable tablePortsRC = new JTable (tabModelRC);
+	      tablePortsRC.setBackground(new Color(240, 240, 240));
+	      tablePortsRC.setEnabled(false);
+	      TableColumnModel columnModelRC = tablePortsRC.getColumnModel();
+	      columnModelRC.getColumn( 0 ).setPreferredWidth( 200 );
+	      JScrollPane scrollpaneRC = new JScrollPane(tablePortsRC);
+	      scrollpaneRC.setBounds(10, 140, 220, 55);
 	      
 	      
-
-	      
-	      
+	      JPanel panelPorts = new JPanel();
+	      panelPorts.setBounds(601, 72, 240, 205);
+	      panelPorts.setBorder(BorderFactory.createLineBorder(Color.BLACK));
+	      panelPorts.setLayout(null);
+	      panelPorts.add(scrollpaneRA);
+	      panelPorts.add(scrollpaneRB);
+	      panelPorts.add(scrollpaneRC);
+	      contentPane.add(panelPorts);
 // ########################## Speicher ##############################################
-
-	      
-	      
-	      
-
-	      
-
-	      String[] TitelSpeicher = new String[]{" ", "00", "01", "02", "03", "04", "05", "06", "07"};
-	      JTable tableSpeicher = new JTable (strg.getRegisterArray(), TitelSpeicher );
+	      TitelSpeicher = new String[]{" ", "00", "01", "02", "03", "04", "05", "06", "07"};
+	      tabModel = new DefaultTableModel(strg.getRegisterArray(), TitelSpeicher);
+	      tableSpeicher = new JTable (tabModel);
 	      tableSpeicher.setBackground(new Color(240, 240, 240));
 	      tableSpeicher.setBounds(710, 270, 525, 16);
 	      tableSpeicher.setEnabled(false);
-	      
-	      
-	      
-	      
-	      
+	      scrollpaneSpeicher = new JScrollPane(tableSpeicher);
+	      scrollpaneSpeicher.setBorder(BorderFactory.createLineBorder(Color.BLACK));
+		  scrollpaneSpeicher.setBounds(972, 72, 302, 534);
+		  contentPane.add(scrollpaneSpeicher);
+	      /*         
 	      TableColumnModel columnModel2 = tableSpeicher.getColumnModel();
-          
-	      // Die einzelnen Columns ansprechen und die Grösse setzen
 	      columnModel2.getColumn( 0 ).setPreferredWidth( 40 );
-	      columnModel2.getColumn( 1 ).setPreferredWidth( 40 );
-	      columnModel2.getColumn( 2 ).setPreferredWidth( 40 );
-	      columnModel2.getColumn( 3 ).setPreferredWidth( 40 );
-	      columnModel2.getColumn( 4 ).setPreferredWidth( 40 );
-	      columnModel2.getColumn( 5 ).setPreferredWidth( 40 );
-	      columnModel2.getColumn( 6 ).setPreferredWidth( 40 );
-	      columnModel2.getColumn( 7 ).setPreferredWidth( 40 );
-	      columnModel2.getColumn( 8 ).setPreferredWidth( 40 );
-	      
-	      
-	      
-	      
-	      
-	      
-	      
-	      JScrollPane scrollpaneSpeicher = new JScrollPane(tableSpeicher);
-			scrollpaneSpeicher.setBorder(BorderFactory.createLineBorder(Color.BLACK));
-			
-			scrollpaneSpeicher.setBounds(700, 260, 535, 373);
-			contentPane.add(scrollpaneSpeicher);
-	      
-	      
-	      
-	      
-	      
-	      
+	      ...
+	      */
+	            
 	      
 	      this.setVisible(true);
 	}
 	
+	
+	
+	
+	
+	public void refreshSpeicher(String[][] Speicher){
+		int anzahlZeilenInTabelle = tableSpeicher.getRowCount();
+		for (int i=0; i < anzahlZeilenInTabelle; i++)
+		{
+			tabModel.removeRow(0);
+		}
+		for (int i = 0; i < 32; i++)
+		{
+			Object[] zeile = new Object[9];
+			for (int j = 0; j < 9; j++)
+			{
+				zeile[j] = Speicher[i][j];
+			}
+			tabModel.addRow(zeile);
+		}
+	}
+	
+	public void markiereZeile (int Zeilennummer){
+		Zeilennummer --;
+		tableDatei.removeRowSelectionInterval(aktuelleZeile, aktuelleZeile);
+		tableDatei.addRowSelectionInterval(Zeilennummer, Zeilennummer);
+		aktuelleZeile=Zeilennummer;
+		JScrollBar scrollbar = scrollpaneText.getVerticalScrollBar();
+		int anzeige = aktuelleZeile * 16;
+		scrollbar.setValue(anzeige);
+		scrollbar.repaint();
+	}
 	
 	
 	public void setZeile(String zeile){

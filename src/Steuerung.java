@@ -6,6 +6,7 @@ public class Steuerung {
 	/**
 	 * @param args
 	 */
+	private Takt takt;
 	Oberflaeche gui;
 	FileHandler read;
 	Programm programm;
@@ -17,6 +18,7 @@ public class Steuerung {
 		setRegister(new Register());
 		gui = new Oberflaeche(this);
 		befehle = new Befehle(this);
+		takt = new Takt(this);
 	}
 	
 	public void oeffneDatei(){
@@ -48,6 +50,8 @@ public class Steuerung {
 		int opcode =0;
 		register.setPC(0);
 		while (run){
+		
+			isInterrupt();
 			
 			opcode = programm.getOpcode(register.getPC());
 			
@@ -84,9 +88,9 @@ public class Steuerung {
 			else if( opcode <= 0x00FF && opcode >=0x0080){
 				befehle.movwf(opcode);
 			}
-			else if( opcode <= 0x0060 && opcode >=0x0000){
+		/*	else if( opcode <= 0x0060 && opcode >=0x0000){
 				befehle.nop(opcode);
-			}
+			}*/
 			else if( opcode <= 0x0dff && opcode >=0x0d00){
 				befehle.rlf(opcode);
 			}
@@ -117,12 +121,47 @@ public class Steuerung {
 			else if( opcode <= 0x27ff && opcode >=0x2000){
 				befehle.call(opcode);
 			}
+			else if( opcode <= 0x3fff && opcode >=0x3e00){
+				befehle.addlw(opcode);
+			}
+			else if( opcode <= 0x37ff && opcode >=0x3400){
+				befehle.retlw(opcode);
+			}
+			else if( opcode <= 0x1bff && opcode >=0x1800){
+				befehle.btfsc(opcode);
+			}
+			else if( opcode <= 0x1fff && opcode >=0x1c00){
+				befehle.btfss(opcode);
+			}
+			else if( opcode <= 0x0dff && opcode >=0x0d00){
+				befehle.rlf(opcode);
+			}
+			else if( opcode <= 0x0cff && opcode >=0x0c00){
+				befehle.rrf(opcode);
+			}
+			else if( opcode <= 0x3dff && opcode >=0x3c00){
+				befehle.sublw(opcode);
+			}
+			else if( opcode <= 0x3aff && opcode >=0x3a00){
+				befehle.xorlw(opcode);
+			}
+			else if( opcode <= 0x38ff && opcode >=0x3800){
+				befehle.iorlw(opcode);
+			}
+			else if( opcode <= 0x39ff && opcode >=0x3900){
+				befehle.andlw(opcode);
+			}
+			else if( opcode  == 0x0008){
+				befehle.ret();
+			}
 		}
-		
 		return 0;
 	}
 	
 	public void nextStep(){
+		
+		isInterrupt();
+		
 		int opcode = programm.getOpcode(register.getPC());
 		
 		if (opcode <= 2047 && opcode >= 1792){
@@ -158,9 +197,9 @@ public class Steuerung {
 		else if( opcode <= 0x00FF && opcode >=0x0080){
 			befehle.movwf(opcode);
 		}
-		else if( opcode <= 0x0060 && opcode >=0x0000){
+	/*	else if( opcode <= 0x0060 && opcode >=0x0000){
 			befehle.nop(opcode);
-		}
+		}*/
 		else if( opcode <= 0x0dff && opcode >=0x0d00){
 			befehle.rlf(opcode);
 		}
@@ -190,6 +229,39 @@ public class Steuerung {
 		}
 		else if( opcode <= 0x27ff && opcode >=0x2000){
 			befehle.call(opcode);
+		}
+		else if( opcode <= 0x3fff && opcode >=0x3e00){
+			befehle.addlw(opcode);
+		}
+		else if( opcode <= 0x37ff && opcode >=0x3400){
+			befehle.retlw(opcode);
+		}
+		else if( opcode <= 0x1bff && opcode >=0x1800){
+			befehle.btfsc(opcode);
+		}
+		else if( opcode <= 0x1fff && opcode >=0x1c00){
+			befehle.btfss(opcode);
+		}
+		else if( opcode <= 0x0dff && opcode >=0x0d00){
+			befehle.rlf(opcode);
+		}
+		else if( opcode <= 0x0cff && opcode >=0x0c00){
+			befehle.rrf(opcode);
+		}
+		else if( opcode <= 0x3dff && opcode >=0x3c00){
+			befehle.sublw(opcode);
+		}
+		else if( opcode <= 0x3aff && opcode >=0x3a00){
+			befehle.xorlw(opcode);
+		}
+		else if( opcode <= 0x38ff && opcode >=0x3800){
+			befehle.iorlw(opcode);
+		}
+		else if( opcode <= 0x39ff && opcode >=0x3900){
+			befehle.andlw(opcode);
+		}
+		else if( opcode  == 0x0008){
+			befehle.ret();
 		}
 	}
 	
@@ -228,10 +300,24 @@ public class Steuerung {
 		register.setStack(register.getPC()+1);
 	}
 	
+	public void setMarkierungtxt(){
+		gui.markiereZeile(programm.getZeile(register.getPC()));
+	}
+	
+	public void startTimer(){
+		takt.taktgeber();
+	}
+	
+	public void stopTimer()
+	{
+		takt.stoptaktgeber();
+	}
+	
+	
+	
+	
 	public String[][] getRegisterArray()
 	{
-		System.out.println(getRegister()[1]);
-		
 		String[][] DatenSpeicher = new String[32][9];
 		DatenSpeicher[0][0]="00";
 		DatenSpeicher[1][0]="08";
@@ -277,5 +363,50 @@ public class Steuerung {
 		}
 		return DatenSpeicher;
 	}
-
+	
+	public void refreshRegister(){
+		gui.refreshSpeicher(this.getRegisterArray());
+	}
+	
+	private boolean isInterrupt(){
+			// Global Interrupt
+			boolean interrupt = false;
+			if ((register.getWert(0xB) & 128) == 1) {
+				// TMR0 Interrupt
+				if (((register.getWert(0xB) & 32) == 1) && ((register.getWert(0xB)&4) == 1)) {
+					interrupt = true;
+					System.err.println("TMR0 Interrupt!");
+				}
+				// RB0 Interrupt
+				if (((register.getWert(0xB) & 16) == 1) && ((register.getWert(0xB)&2) == 1)) {
+					interrupt = true;
+					System.err.println("RB0 Interrupt!");
+				}
+				// RB-Change Interrupt
+				if (((register.getWert(0xB) & 8) == 1) && ((register.getWert(0xB)&1) == 1)) {
+					interrupt = true;
+					System.err.println("Port RB Interrupt!");
+				}
+			}
+			if (interrupt) {
+				register.clearBit(0xB, 7);
+				register.setStack(getProgramcounter());
+				setProgramcounter(0x4);
+				register.setWert(0x2, (short)0x4);
+			}
+			return interrupt;
+	}
+	
+	public void incTMR0(){
+		int val = register.getWertOhneBank(0x01);
+		val++;
+		if(val > 255){
+			val = val % 256;
+		}
+		if(val == 0){
+			register.setBit(0xb, 2);
+		}
+		register.setWertOhneBank(0x1, (short)val);
+	}
+	
 }

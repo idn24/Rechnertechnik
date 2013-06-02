@@ -7,7 +7,7 @@ public class Register {
 	private short register[];
 	private int w;
 	private Stack<Integer> stack;
-	private int programcounter = 0;
+//	private int programcounter = 0;
 
 	public Stack<Integer> getStack() {
 		return stack;
@@ -129,6 +129,14 @@ public class Register {
 		
 	}
 	
+	public short getWertOhneBank(int regIndex){
+		return register[regIndex];
+	}
+	
+	public void setWertOhneBank(int regIndex, short val){
+		register[regIndex] = val;
+	}
+	
 	private int getBank() {
 		int shift = 1;
 		shift = shift << 5;
@@ -239,5 +247,11 @@ public class Register {
 		}
 		
 	}
+
+	public int getStackHead() {
+		// TODO Auto-generated method stub
+		return stack.pop();
+	}
+
 	
 }
