@@ -341,7 +341,7 @@ public class Befehle {
 	
 	public void xorlw(int opcode){
 		int k = opcode & 255;
-		strg.setW(strg.getRegisterClass().getWert(k) ^ strg.getW());
+		strg.setW(k ^ strg.getW());
 		if(strg.getW() == 0	){
 			strg.getRegisterClass().setBit(0x03, 2);
 		}else{
@@ -424,8 +424,7 @@ public class Befehle {
 	}
 	
 	public void sublw(int opcode){
-		int f = opcode & 255;
-		int val = strg.getRegisterClass().getWert(f);
+		int val = opcode & 255;
 		val = val % 256;
 		val = val - strg.getW();
 		if (val < 0) {
@@ -445,7 +444,7 @@ public class Befehle {
 
 	public void iorlw(int opcode) {
 		int k = opcode & 255;
-		strg.setW(strg.getW() | strg.getRegisterClass().getWert(k));
+		strg.setW(strg.getW() | k);
 		if(strg.getW() == 0){
 			strg.getRegisterClass().setBit(0x03, 2);
 		}else{
@@ -457,7 +456,7 @@ public class Befehle {
 
 	public void andlw(int opcode) {
 		int k = opcode & 255;
-		strg.setW(strg.getW() & strg.getRegisterClass().getWert(k));
+		strg.setW(strg.getW() & k);
 		if(strg.getW() == 0){
 			strg.getRegisterClass().setBit(0x03, 2);
 		}else{

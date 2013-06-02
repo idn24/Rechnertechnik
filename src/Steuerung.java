@@ -408,5 +408,40 @@ public class Steuerung {
 		}
 		register.setWertOhneBank(0x1, (short)val);
 	}
+
+	public void editPort(String port, int spalte, String val) {
+		int bit = 0;
+		int value = Integer.valueOf(val);
+		switch(spalte){ 
+		case 1: bit = 7; break;
+		case 2: bit = 6;break;
+		case 3: bit = 5;break;
+		case 4: bit = 4;break;
+		case 5: bit = 3;break;
+		case 6: bit = 2;break;
+		case 7: bit = 1;break;
+		case 8: bit = 0;break;
+		}
+		if(port.equals("A")){
+			if(value == 1){
+				register.setBit(0x05, bit);
+			}else{
+				register.clearBit(0x05, bit);
+			}
+		}else if(port.equals("B")){
+			if(value == 1){
+				register.setBit(0x06, bit);
+			}else{
+				register.clearBit(0x06, bit);
+			}
+		}else if(port.equals("C")){
+			if(value == 1){
+				register.setBit(0x07, bit);
+			}else{
+				register.clearBit(0x07, bit);
+			}
+		}
+		refreshRegister();
+	}
 	
 }

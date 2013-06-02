@@ -46,20 +46,26 @@ public class Oberflaeche extends JFrame {
 	public Steuerung strg;
 	private JTable tableSpeicher;
 	private JPanel contentPane;
-	private JTable table;
-	private JTable table_1;
-	private JTable table_2;
 	private JTable tableDatei;
 	private DefaultTableModel Modell;
-	private JTextField txtPorts;
 	private String[] TitelSpeicher;
 	private String[] TitelPortsRC;
+	private String[] TitelStatusregister;
+	private String[] TitelInterrupt;
 	private int aktuelleZeile = 0;
 	private DefaultTableModel tabModel;
 	private JScrollPane scrollpaneSpeicher;
 	private JScrollPane scrollpaneText;
 	private JTable tablePortsRA;
-
+	private JTable tablePortsRB;
+	private JTable tablePortsRC;
+	private JTable tableStatusregister;
+	private JTable tableInterrupt;
+	private String inhaltZelle;
+	private int reihe;
+	private int spalte;
+	private JLabel lblWertWregister;
+	private  JLabel lblWertPC;
 
 	/**
 	 * Create the frame.
@@ -160,18 +166,37 @@ public class Oberflaeche extends JFrame {
 				    { "Tris", "0", "0", "0", "0", "0", "0", "0", "0" }, { "Pin", "0", "0", "0", "0", "0", "0", "0", "0" },
 	      };
 	      String[] TitelPortsRA = {"RA", "7", "6", "5", "4", "3", "2", "1", "0"};
-	      tablePortsRA = new JTable (DatenPortsRA, TitelPortsRA );
+	      DefaultTableModel tabModelRA = new DefaultTableModel(DatenPortsRA, TitelPortsRA);
+	      tablePortsRA = new JTable (tabModelRA){
+	    	  public boolean isCellEditable(int x, int y) {
+	                return false;
+	            }
+	      };
 	      tablePortsRA.setBackground(new Color(240, 240, 240));
+	      tablePortsRA.getTableHeader().setReorderingAllowed(false);
 	      tablePortsRA.addMouseListener(new MouseAdapter() {
-	    	  public void mouseclicked(MouseEvent e){
-	    		  System.out.println("Reihe" + Oberflaeche.this.tablePortsRA.columnAtPoint(e.getPoint()));
-	    		  //System.out.println("Spalte" + Oberflaeche.this.tablePortsRA.getSelectedColumn());
+	    	  public void mouseClicked(MouseEvent e){
+	    		  reihe = Oberflaeche.this.tablePortsRA.getSelectedRow();
+	    		  spalte = Oberflaeche.this.tablePortsRA.getSelectedColumn();
+	    		  inhaltZelle = (String) tablePortsRA.getValueAt(reihe, spalte);
+	    		  System.out.println("RA - Reihe: " + reihe + " - Spalte: " + spalte);
+	    		  if (reihe == 1){
+	    			  if (inhaltZelle == "0")
+	    			  {
+	    				  tablePortsRA.setValueAt("1", reihe, spalte);
+	    			  }
+	    			  else
+	    			  {
+	    				  tablePortsRA.setValueAt("0", reihe, spalte);
+	    			  }
+	    			  Oberflaeche.this.strg.editPort("A", spalte, (String) tablePortsRA.getValueAt(reihe, spalte));
+	    		  }
 	    	  }
 	      });
 	      TableColumnModel columnModelRA = tablePortsRA.getColumnModel();
 	      columnModelRA.getColumn( 0 ).setPreferredWidth( 200 );
 	      JScrollPane scrollpaneRA = new JScrollPane(tablePortsRA);
-	      scrollpaneRA.setBounds(10, 10, 220, 55);
+	      scrollpaneRA.setBounds(10, 10, 255, 55);
 	      
 	      
 	      
@@ -180,13 +205,37 @@ public class Oberflaeche extends JFrame {
 				    { "Tris", "0", "0", "0", "0", "0", "0", "0", "0" }, { "Pin", "0", "0", "0", "0", "0", "0", "0", "0" },
 	      };
 	      String[] TitelPortsRB = {"RB", "7", "6", "5", "4", "3", "2", "1", "0"};
-	      JTable tablePortsRB = new JTable (DatenPortsRB, TitelPortsRB );
+	      DefaultTableModel tabModelRB = new DefaultTableModel(DatenPortsRB, TitelPortsRB);
+	      tablePortsRB = new JTable (tabModelRB){
+	    	  public boolean isCellEditable(int x, int y) {
+	                return false;
+	            }
+	      };
 	      tablePortsRB.setBackground(new Color(240, 240, 240));
-	      tablePortsRB.setEnabled(false);
+	      tablePortsRB.getTableHeader().setReorderingAllowed(false);
+	      tablePortsRB.addMouseListener(new MouseAdapter() {
+	    	  public void mouseClicked(MouseEvent e){
+	    		  reihe = Oberflaeche.this.tablePortsRB.getSelectedRow();
+	    		  spalte = Oberflaeche.this.tablePortsRB.getSelectedColumn();
+	    		  inhaltZelle = (String) Oberflaeche.this.tablePortsRB.getValueAt(reihe, spalte);
+	    		  System.out.println("RB - Reihe: " + reihe + " - Spalte: " + spalte);
+	    		  if (reihe == 1){
+	    			  if (inhaltZelle.equals("0"))
+	    			  {
+	    				  tablePortsRB.setValueAt("1", reihe, spalte);
+	    			  }
+	    			  else
+	    			  {
+	    				  tablePortsRB.setValueAt("0", reihe, spalte);
+	    			  }
+	    			  Oberflaeche.this.strg.editPort("B", spalte,(String) tablePortsRB.getValueAt(reihe, spalte));
+	    		  }
+	    	  }
+	      });
 	      TableColumnModel columnModelRB = tablePortsRB.getColumnModel();
 	      columnModelRB.getColumn( 0 ).setPreferredWidth( 200 );
 	      JScrollPane scrollpaneRB = new JScrollPane(tablePortsRB);
-	      scrollpaneRB.setBounds(10, 75, 220, 55);
+	      scrollpaneRB.setBounds(10, 75, 255, 55);
 	      
 	      
 	      
@@ -195,23 +244,48 @@ public class Oberflaeche extends JFrame {
 	      };
 	      TitelPortsRC = new String[]{"RC", "7", "6", "5", "4", "3", "2", "1", "0"};
 	      DefaultTableModel tabModelRC = new DefaultTableModel(DatenPortsRC, TitelPortsRC);
-	      JTable tablePortsRC = new JTable (tabModelRC);
+	      tablePortsRC = new JTable (tabModelRC){
+	    	  public boolean isCellEditable(int x, int y) {
+	                return false;
+	            }
+	      };
 	      tablePortsRC.setBackground(new Color(240, 240, 240));
-	      tablePortsRC.setEnabled(false);
+	      tablePortsRC.getTableHeader().setReorderingAllowed(false);
+	      tablePortsRC.addMouseListener(new MouseAdapter() {
+	    	  public void mouseClicked(MouseEvent e){
+	    		  reihe = Oberflaeche.this.tablePortsRC.getSelectedRow();
+	    		  spalte = Oberflaeche.this.tablePortsRC.getSelectedColumn();
+	    		  inhaltZelle = (String) Oberflaeche.this.tablePortsRC.getValueAt(reihe, spalte);
+	    		  System.out.println("RC - Reihe: " + reihe + " - Spalte: " + spalte);
+	    		  if (reihe == 1){
+	    			  if (inhaltZelle == "0")
+	    			  {
+	    				  tablePortsRC.setValueAt("1", reihe, spalte);
+	    			  }
+	    			  else
+	    			  {
+	    				  tablePortsRC.setValueAt("0", reihe, spalte);
+	    			  }
+	    			  Oberflaeche.this.strg.editPort("C", spalte,(String) tablePortsRC.getValueAt(reihe, spalte));
+	    		  }
+	    	  }
+	      });
 	      TableColumnModel columnModelRC = tablePortsRC.getColumnModel();
 	      columnModelRC.getColumn( 0 ).setPreferredWidth( 200 );
 	      JScrollPane scrollpaneRC = new JScrollPane(tablePortsRC);
-	      scrollpaneRC.setBounds(10, 140, 220, 55);
+	      scrollpaneRC.setBounds(10, 140, 255, 55);
 	      
 	      
 	      JPanel panelPorts = new JPanel();
-	      panelPorts.setBounds(601, 72, 240, 205);
+	      panelPorts.setBounds(601, 72, 275, 205);
 	      panelPorts.setBorder(BorderFactory.createLineBorder(Color.BLACK));
 	      panelPorts.setLayout(null);
 	      panelPorts.add(scrollpaneRA);
 	      panelPorts.add(scrollpaneRB);
 	      panelPorts.add(scrollpaneRC);
 	      contentPane.add(panelPorts);
+	      
+	      
 // ########################## Speicher ##############################################
 	      TitelSpeicher = new String[]{" ", "00", "01", "02", "03", "04", "05", "06", "07"};
 	      tabModel = new DefaultTableModel(strg.getRegisterArray(), TitelSpeicher);
@@ -219,25 +293,90 @@ public class Oberflaeche extends JFrame {
 	      tableSpeicher.setBackground(new Color(240, 240, 240));
 	      tableSpeicher.setBounds(710, 270, 525, 16);
 	      tableSpeicher.setEnabled(false);
+	      tableSpeicher.getTableHeader().setReorderingAllowed(false);
 	      scrollpaneSpeicher = new JScrollPane(tableSpeicher);
 	      scrollpaneSpeicher.setBorder(BorderFactory.createLineBorder(Color.BLACK));
 		  scrollpaneSpeicher.setBounds(972, 72, 302, 534);
 		  contentPane.add(scrollpaneSpeicher);
-	      /*         
-	      TableColumnModel columnModel2 = tableSpeicher.getColumnModel();
-	      columnModel2.getColumn( 0 ).setPreferredWidth( 40 );
-	      ...
-	      */
-	            
+		  
+		  
+		  
+		  
+// ########################## Spezialfunktionsregister ##############################################
+
+		  
+		  JLabel lblWregister = new JLabel("W-Register");
+		  lblWregister.setBounds(10, 10, 100, 14);
+		  
+		  lblWertWregister = new JLabel("00");
+		  lblWertWregister.setBounds(120, 10, 50, 14);
+		  
+
+		  JLabel lblPc = new JLabel("PC");
+		  lblPc.setBounds(10, 40, 100, 14);
+		  		  
+		  lblWertPC = new JLabel(Integer.toHexString(strg.getProgramcounter()));
+		  lblWertPC.setBounds(120, 40, 50, 14);
+		  
+		  
+		  JLabel lblStatus = new JLabel("Status");
+		  lblStatus.setBounds(10, 70, 100, 14);
+		  
+		  //Statusregister
+		  String[][] DatenStatusregister = {{"0", "0", "0", "1", "1", "0", "0", "0"}};
+	      TitelStatusregister = new String[]{"IRP", "RP1", "RP0", "TO", "PD", "Z", "DC", "C"};
+	      DefaultTableModel tabModelStatusregister = new DefaultTableModel(DatenStatusregister, TitelStatusregister);
+	      tableStatusregister = new JTable (tabModelStatusregister);
+	      tableStatusregister.setBackground(new Color(240, 240, 240));
+	      tableStatusregister.setEnabled(false);
+	      tableStatusregister.getTableHeader().setReorderingAllowed(false);
+	      tableStatusregister.addMouseListener(new MouseAdapter() {
+	    	  public void mouseClicked(MouseEvent e){
+	    		  System.out.println("Spalte: " + Oberflaeche.this.tableStatusregister.getSelectedColumn());
+	    	  }
+	      });
+	      JScrollPane scrollpaneStatusregister = new JScrollPane(tableStatusregister);
+	      scrollpaneStatusregister.setBounds(10, 100, 255, 39);
 	      
+	      
+	      //Interrupts
+	      String[][] DatenInterrupt = {{"0", "0", "0", "0", "0", "0", "0", "0"}};
+	      TitelInterrupt = new String[]{"GIE", "PIE", "T0IE", "INTE", "RBIE", "T0IF", "INTF", "RBIF"};
+	      DefaultTableModel tabModelInterrupt = new DefaultTableModel(DatenInterrupt, TitelInterrupt);
+	      tableInterrupt = new JTable (tabModelInterrupt);
+	      tableInterrupt.setEnabled(false);
+	      tableInterrupt.setBackground(new Color(240, 240, 240));
+	      tableInterrupt.getTableHeader().setReorderingAllowed(false);
+	      tableInterrupt.addMouseListener(new MouseAdapter() {
+	    	  public void mouseClicked(MouseEvent e){
+	    		  System.out.println("Spalte: " + Oberflaeche.this.tableInterrupt.getSelectedColumn());
+	    	  }
+	      });
+	      JScrollPane scrollpaneInterrupt = new JScrollPane(tableInterrupt);
+	      scrollpaneInterrupt.setBounds(10, 160, 255, 39);
+		  
+	      
+	      //panelSpezialfunktionsregister
+		  JPanel panelSpezialfunktionsregister = new JPanel();
+		  panelSpezialfunktionsregister.setBounds(601, 304, 275, 302);
+		  panelSpezialfunktionsregister.setBorder(BorderFactory.createLineBorder(Color.BLACK));
+		  panelSpezialfunktionsregister.setLayout(null);
+		  panelSpezialfunktionsregister.add(lblWregister);
+		  panelSpezialfunktionsregister.add(lblWertWregister);
+		  panelSpezialfunktionsregister.add(lblPc);
+		  panelSpezialfunktionsregister.add(lblWertPC);
+		  panelSpezialfunktionsregister.add(lblStatus);
+		  panelSpezialfunktionsregister.add(scrollpaneStatusregister);
+		  panelSpezialfunktionsregister.add(scrollpaneInterrupt);
+		  contentPane.add(panelSpezialfunktionsregister);
 	      this.setVisible(true);
 	}
 	
 	
 	
+
 	
-	
-	public void refreshSpeicher(String[][] Speicher){
+	public void refreshSpeicher(String[][] speicher){
 		int anzahlZeilenInTabelle = tableSpeicher.getRowCount();
 		for (int i=0; i < anzahlZeilenInTabelle; i++)
 		{
@@ -248,10 +387,62 @@ public class Oberflaeche extends JFrame {
 			Object[] zeile = new Object[9];
 			for (int j = 0; j < 9; j++)
 			{
-				zeile[j] = Speicher[i][j];
+				zeile[j] = speicher[i][j];
 			}
 			tabModel.addRow(zeile);
 		}
+		lblWertWregister.setText(Integer.toHexString(strg.getW()));
+		lblWertPC.setText(Integer.toHexString(strg.getProgramcounter()));
+		int valPortA = strg.getRegisterClass().getWertOhneBank(0x05);
+		int valPortB = strg.getRegisterClass().getWertOhneBank(0x06);
+		int valPortC = strg.getRegisterClass().getWertOhneBank(0x07);
+		int valStatus = strg.getRegisterClass().getWert(0x03);
+		int valInterrupt = strg.getRegisterClass().getWert(0x0b);
+		String stringStatus = Integer.toBinaryString(valStatus + 256);
+		String stringInterrupt = Integer.toBinaryString(valInterrupt + 256);
+		String stringPortA = Integer.toBinaryString(valPortA + 256);
+		String stringPortB = Integer.toBinaryString(valPortB + 256);
+		String stringPortC = Integer.toBinaryString(valPortC + 256);
+		tablePortsRA.setValueAt(String.valueOf(stringPortA.charAt(8)), 1, 8);
+		tablePortsRA.setValueAt(String.valueOf(stringPortA.charAt(7)), 1, 7);
+		tablePortsRA.setValueAt(String.valueOf(stringPortA.charAt(6)), 1, 6);
+		tablePortsRA.setValueAt(String.valueOf(stringPortA.charAt(5)), 1, 5);
+		tablePortsRA.setValueAt(String.valueOf(stringPortA.charAt(4)), 1, 4);
+		tablePortsRA.setValueAt(String.valueOf(stringPortA.charAt(3)), 1, 3);
+		tablePortsRA.setValueAt(String.valueOf(stringPortA.charAt(2)), 1, 2);
+		tablePortsRA.setValueAt(String.valueOf(stringPortA.charAt(1)), 1, 1);
+		tablePortsRB.setValueAt(String.valueOf(stringPortB.charAt(8)), 1, 8);
+		tablePortsRB.setValueAt(String.valueOf(stringPortB.charAt(7)), 1, 7);
+		tablePortsRB.setValueAt(String.valueOf(stringPortB.charAt(6)), 1, 6);
+		tablePortsRB.setValueAt(String.valueOf(stringPortB.charAt(5)), 1, 5);
+		tablePortsRB.setValueAt(String.valueOf(stringPortB.charAt(4)), 1, 4);
+		tablePortsRB.setValueAt(String.valueOf(stringPortB.charAt(3)), 1, 3);
+		tablePortsRB.setValueAt(String.valueOf(stringPortB.charAt(2)), 1, 2);
+		tablePortsRB.setValueAt(String.valueOf(stringPortB.charAt(1)), 1, 1);
+		tablePortsRC.setValueAt(String.valueOf(stringPortC.charAt(8)), 1, 8);
+		tablePortsRC.setValueAt(String.valueOf(stringPortC.charAt(7)), 1, 7);
+		tablePortsRC.setValueAt(String.valueOf(stringPortC.charAt(6)), 1, 6);
+		tablePortsRC.setValueAt(String.valueOf(stringPortC.charAt(5)), 1, 5);
+		tablePortsRC.setValueAt(String.valueOf(stringPortC.charAt(4)), 1, 4);
+		tablePortsRC.setValueAt(String.valueOf(stringPortC.charAt(3)), 1, 3);
+		tablePortsRC.setValueAt(String.valueOf(stringPortC.charAt(2)), 1, 2);
+		tablePortsRC.setValueAt(String.valueOf(stringPortC.charAt(1)), 1, 1);
+		tableStatusregister.setValueAt(String.valueOf(stringStatus.charAt(8)), 0, 7);
+		tableStatusregister.setValueAt(String.valueOf(stringStatus.charAt(7)), 0, 6);
+		tableStatusregister.setValueAt(String.valueOf(stringStatus.charAt(6)), 0, 5);
+		tableStatusregister.setValueAt(String.valueOf(stringStatus.charAt(5)), 0, 4);
+		tableStatusregister.setValueAt(String.valueOf(stringStatus.charAt(4)), 0, 3);
+		tableStatusregister.setValueAt(String.valueOf(stringStatus.charAt(3)), 0, 2);
+		tableStatusregister.setValueAt(String.valueOf(stringStatus.charAt(2)), 0, 1);
+		tableStatusregister.setValueAt(String.valueOf(stringStatus.charAt(1)), 0, 0);
+		tableInterrupt.setValueAt(String.valueOf(stringInterrupt.charAt(8)), 0, 7);
+		tableInterrupt.setValueAt(String.valueOf(stringInterrupt.charAt(7)), 0, 6);
+		tableInterrupt.setValueAt(String.valueOf(stringInterrupt.charAt(6)), 0, 5);
+		tableInterrupt.setValueAt(String.valueOf(stringInterrupt.charAt(5)), 0, 4);
+		tableInterrupt.setValueAt(String.valueOf(stringInterrupt.charAt(4)), 0, 3);
+		tableInterrupt.setValueAt(String.valueOf(stringInterrupt.charAt(3)), 0, 2);
+		tableInterrupt.setValueAt(String.valueOf(stringInterrupt.charAt(2)), 0, 1);
+		tableInterrupt.setValueAt(String.valueOf(stringInterrupt.charAt(1)), 0, 0);
 	}
 	
 	public void markiereZeile (int Zeilennummer){
