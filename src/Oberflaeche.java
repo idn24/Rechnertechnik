@@ -1,4 +1,5 @@
 import java.awt.BorderLayout;
+import java.awt.Desktop;
 import java.awt.Dimension;
 import java.awt.EventQueue;
 
@@ -28,6 +29,9 @@ import javax.swing.JButton;
 import java.awt.FlowLayout;
 
 import javax.swing.BorderFactory;
+import javax.swing.JMenu;
+import javax.swing.JMenuBar;
+import javax.swing.JMenuItem;
 import javax.swing.JScrollBar;
 import javax.swing.JScrollPane;
 import javax.swing.JTextArea;
@@ -39,6 +43,8 @@ import java.awt.SystemColor;
 import java.util.Vector;
 import java.awt.GridLayout;
 import java.awt.Label;
+import java.io.File;
+import java.io.IOException;
 
 
 public class Oberflaeche extends JFrame {
@@ -66,6 +72,7 @@ public class Oberflaeche extends JFrame {
 	private int spalte;
 	private JLabel lblWertWregister;
 	private  JLabel lblWertPC;
+	private JLabel lblWertFSR;
 
 	/**
 	 * Create the frame.
@@ -78,6 +85,35 @@ public class Oberflaeche extends JFrame {
 		contentPane.setBorder(new EmptyBorder(5, 5, 5, 5));
 		setContentPane(contentPane);
 		contentPane.setLayout(null);
+		
+//		####################################################################################################################		
+		JMenuBar menuBar = new JMenuBar();
+		setJMenuBar(menuBar);
+		
+		JMenu mnHilfe = new JMenu("Hilfe");
+		menuBar.add(mnHilfe);
+		
+		JMenuItem mnItemDoku = new JMenuItem("Dokumentation anzeigen");
+		mnItemDoku.addActionListener(new java.awt.event.ActionListener() {
+		    public void actionPerformed(java.awt.event.ActionEvent evt) {
+		    	try {
+					File pdfFile = new File("Dokumentation/Dokumentation.pdf");
+					if (pdfFile.exists()) {
+						if (Desktop.isDesktopSupported()) {
+							Desktop.getDesktop().open(pdfFile);
+						} else {
+							System.out.println("Awt Desktop is not supported!");
+						}
+					} else {
+						System.out.println("File is not exists!");
+					}
+				} catch (IOException e) {
+					e.printStackTrace();
+				}
+		    }
+		});
+		mnHilfe.add(mnItemDoku);
+
 		
 		// ########################## Buttons ##############################################
 		JPanel panelButtons = new JPanel();
@@ -137,6 +173,7 @@ public class Oberflaeche extends JFrame {
 		btnReset.setPreferredSize(new Dimension(130, 30));
 		btnReset.addActionListener(new ActionListener() {
 			public void actionPerformed(ActionEvent e) {
+				Oberflaeche.this.strg.reset();
 			}
 		});
 		panelButtons.add(btnReset);
@@ -181,7 +218,7 @@ public class Oberflaeche extends JFrame {
 	    		  inhaltZelle = (String) tablePortsRA.getValueAt(reihe, spalte);
 	    		  System.out.println("RA - Reihe: " + reihe + " - Spalte: " + spalte);
 	    		  if (reihe == 1){
-	    			  if (inhaltZelle == "0")
+	    			  if (inhaltZelle.equals("0"))
 	    			  {
 	    				  tablePortsRA.setValueAt("1", reihe, spalte);
 	    			  }
@@ -189,6 +226,7 @@ public class Oberflaeche extends JFrame {
 	    			  {
 	    				  tablePortsRA.setValueAt("0", reihe, spalte);
 	    			  }
+	    			  Oberflaeche.this.strg.portATMR0(Integer.valueOf((String) tablePortsRA.getValueAt(reihe, spalte)), Integer.valueOf(inhaltZelle));
 	    			  Oberflaeche.this.strg.editPort("A", spalte, (String) tablePortsRA.getValueAt(reihe, spalte));
 	    		  }
 	    	  }
@@ -228,6 +266,7 @@ public class Oberflaeche extends JFrame {
 	    			  {
 	    				  tablePortsRB.setValueAt("0", reihe, spalte);
 	    			  }
+	    			  Oberflaeche.this.strg.portBInterrupt(Integer.valueOf((String) tablePortsRB.getValueAt(reihe, spalte)), Integer.valueOf(inhaltZelle));
 	    			  Oberflaeche.this.strg.editPort("B", spalte,(String) tablePortsRB.getValueAt(reihe, spalte));
 	    		  }
 	    	  }
@@ -300,28 +339,33 @@ public class Oberflaeche extends JFrame {
 		  contentPane.add(scrollpaneSpeicher);
 		  
 		  
-		  
-		  
 // ########################## Spezialfunktionsregister ##############################################
 
 		  
-		  JLabel lblWregister = new JLabel("W-Register");
+		  JLabel lblWregister = new JLabel("W-Register:");
 		  lblWregister.setBounds(10, 10, 100, 14);
 		  
-		  lblWertWregister = new JLabel("00");
+		  lblWertWregister = new JLabel(Integer.toHexString(strg.getW()));
 		  lblWertWregister.setBounds(120, 10, 50, 14);
 		  
 
-		  JLabel lblPc = new JLabel("PC");
-		  lblPc.setBounds(10, 40, 100, 14);
+		  JLabel lblPc = new JLabel("PC:");
+		  lblPc.setBounds(10, 30, 100, 14);
 		  		  
 		  lblWertPC = new JLabel(Integer.toHexString(strg.getProgramcounter()));
-		  lblWertPC.setBounds(120, 40, 50, 14);
+		  lblWertPC.setBounds(120, 30, 50, 14);
 		  
+		  JLabel lblFSR = new JLabel("FSR:");
+		  lblFSR.setBounds(10, 50, 100, 14);
+		  		  
+		  lblWertFSR = new JLabel(Integer.toHexString(strg.getRegisterClass().getWertOhneBank(0x04)));
+		  lblWertFSR.setBounds(120, 50, 50, 14);
 		  
 		  JLabel lblStatus = new JLabel("Status");
-		  lblStatus.setBounds(10, 70, 100, 14);
+		  lblStatus.setBounds(10, 80, 100, 14);
 		  
+		  JLabel lblInterrupt = new JLabel("Interrupt");
+		  lblInterrupt.setBounds(10, 155, 100, 14);
 		  //Statusregister
 		  String[][] DatenStatusregister = {{"0", "0", "0", "1", "1", "0", "0", "0"}};
 	      TitelStatusregister = new String[]{"IRP", "RP1", "RP0", "TO", "PD", "Z", "DC", "C"};
@@ -353,7 +397,7 @@ public class Oberflaeche extends JFrame {
 	    	  }
 	      });
 	      JScrollPane scrollpaneInterrupt = new JScrollPane(tableInterrupt);
-	      scrollpaneInterrupt.setBounds(10, 160, 255, 39);
+	      scrollpaneInterrupt.setBounds(10, 175, 255, 39);
 		  
 	      
 	      //panelSpezialfunktionsregister
@@ -365,8 +409,11 @@ public class Oberflaeche extends JFrame {
 		  panelSpezialfunktionsregister.add(lblWertWregister);
 		  panelSpezialfunktionsregister.add(lblPc);
 		  panelSpezialfunktionsregister.add(lblWertPC);
+		  panelSpezialfunktionsregister.add(lblFSR);
+		  panelSpezialfunktionsregister.add(lblWertFSR);
 		  panelSpezialfunktionsregister.add(lblStatus);
 		  panelSpezialfunktionsregister.add(scrollpaneStatusregister);
+		  panelSpezialfunktionsregister.add(lblInterrupt);
 		  panelSpezialfunktionsregister.add(scrollpaneInterrupt);
 		  contentPane.add(panelSpezialfunktionsregister);
 	      this.setVisible(true);
@@ -393,6 +440,7 @@ public class Oberflaeche extends JFrame {
 		}
 		lblWertWregister.setText(Integer.toHexString(strg.getW()));
 		lblWertPC.setText(Integer.toHexString(strg.getProgramcounter()));
+		lblWertFSR.setText(Integer.toHexString(strg.getRegisterClass().getWertOhneBank(0x04)));
 		int valPortA = strg.getRegisterClass().getWertOhneBank(0x05);
 		int valPortB = strg.getRegisterClass().getWertOhneBank(0x06);
 		int valPortC = strg.getRegisterClass().getWertOhneBank(0x07);
@@ -469,4 +517,5 @@ public class Oberflaeche extends JFrame {
 	public int getAnzahlZeilen(){
 		return tableDatei.getRowCount();
 	}
+	
 }

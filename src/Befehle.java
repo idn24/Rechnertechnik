@@ -389,18 +389,24 @@ public class Befehle {
 	
 	public void btfsc(int opcode){
 		int f = opcode & 127;
-		int b = opcode & 896;
-		b = b >> 7;
+		int b = opcode >> 7;
+		b = b & 7;
 		int reg = strg.getRegisterClass().getWert(f);
 		int help = 1;
 		help = help << b;
 		reg = reg & help;
+		reg = reg >> b;
 		if (reg == 1){
 			strg.incPCounter();
 		}else{
 			strg.incPCounter();
 			strg.incPCounter();
 		}
+	}
+	
+	public void retfie(){
+		strg.setProgramcounter(strg.getRegisterClass().getStackHead());
+		strg.getRegisterClass().setBit(0x0b, 7);
 	}
 
 	public void btfss(int opcode) {

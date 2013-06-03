@@ -60,6 +60,11 @@ public class Register {
 	
 	
 	public void setWert(int regIndex, short wert){
+		
+		if(regIndex == 0x00){
+			regIndex = getWert(0x04);
+		}
+		
 		switch(regIndex){
 		case 0x0:	register[0x0] = wert;
 					register[0x80] = wert;
@@ -107,6 +112,9 @@ public class Register {
 	}
 	
 	public short getWert(int regIndex){
+		if(regIndex == 0x00){
+			regIndex = getWert(0x04);
+		}
 		switch(regIndex){
 		case 0x0:	return register[0x0];
 		case 0x2:	return register[0x2];
@@ -251,6 +259,21 @@ public class Register {
 	public int getStackHead() {
 		// TODO Auto-generated method stub
 		return stack.pop();
+	}
+
+	public void reset() {
+		register = new short[0x100];
+		for(int i = 0; i< this.register.length; i++){
+			register[i]=0;
+		}
+		this.register[0x3] = Short.parseShort("00011000", 2);
+		this.register[0x83] = Short.parseShort("00011000", 2);
+		this.register[0x81] = Short.parseShort("11111111", 2);
+		this.register[0x85] = Short.parseShort("00011111", 2);
+		this.register[0x86] = Short.parseShort("11111111", 2);
+		stack = new Stack<Integer>();
+		setW(0);
+		
 	}
 
 	

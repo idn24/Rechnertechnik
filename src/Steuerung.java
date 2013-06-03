@@ -45,119 +45,6 @@ public class Steuerung {
 		gui.clearErsteZeile();
 	}
 	
-	public int run(){
-		boolean run = true;
-		int opcode =0;
-		register.setPC(0);
-		while (run){
-		
-			isInterrupt();
-			
-			opcode = programm.getOpcode(register.getPC());
-			
-			if (opcode <= 2047 && opcode >= 1792){
-				befehle.addwf(opcode);
-			}
-			else if( opcode <= 1535 && opcode >=1280){
-				befehle.andwf(opcode);
-			}
-			else if( opcode <= 511 && opcode >=256){
-				befehle.clr(opcode);
-			}
-			else if( opcode <= 2559 && opcode >=2304){
-				befehle.comf(opcode);
-			}
-			else if( opcode <= 1023 && opcode >=768){
-				befehle.decf(opcode);
-			}
-			else if( opcode <= 3070 && opcode >=2816){
-				befehle.decfsz(opcode);
-			}
-			else if( opcode <= 2815 && opcode >=2560){
-				befehle.incf(opcode);
-			}
-			else if( opcode <= 4095 && opcode >=3840){
-				befehle.incfsz(opcode);
-			}
-			else if( opcode <=1279 && opcode >=1024){
-				befehle.iorwf(opcode);
-			}
-			else if( opcode <= 0x08FF && opcode >=0x0800){
-				befehle.movf(opcode);
-			}
-			else if( opcode <= 0x00FF && opcode >=0x0080){
-				befehle.movwf(opcode);
-			}
-		/*	else if( opcode <= 0x0060 && opcode >=0x0000){
-				befehle.nop(opcode);
-			}*/
-			else if( opcode <= 0x0dff && opcode >=0x0d00){
-				befehle.rlf(opcode);
-			}
-			else if( opcode <= 0x0cff && opcode >=0x0c00){
-				befehle.rrf(opcode);
-			}
-			else if( opcode <= 0x02ff && opcode >=0x0200){
-				befehle.subwf(opcode);
-			}
-			else if( opcode <= 0x0eff && opcode >=0x0e00){
-				befehle.swapf(opcode);
-			}
-			else if( opcode <= 0x06ff && opcode >=0x0600){
-				befehle.xorwf(opcode);
-			}
-			else if( opcode <= 0x2fff && opcode >=0x2800){
-				befehle.gooto(opcode);
-			}
-			else if( opcode <= 0x33ff && opcode >=0x3000){
-				befehle.movlw(opcode);
-			}
-			else if( opcode <= 0x17ff && opcode >=0x1400){
-				befehle.bsf(opcode);
-			}
-			else if( opcode <= 0x13ff && opcode >=0x1000){
-				befehle.bcf(opcode);
-			}
-			else if( opcode <= 0x27ff && opcode >=0x2000){
-				befehle.call(opcode);
-			}
-			else if( opcode <= 0x3fff && opcode >=0x3e00){
-				befehle.addlw(opcode);
-			}
-			else if( opcode <= 0x37ff && opcode >=0x3400){
-				befehle.retlw(opcode);
-			}
-			else if( opcode <= 0x1bff && opcode >=0x1800){
-				befehle.btfsc(opcode);
-			}
-			else if( opcode <= 0x1fff && opcode >=0x1c00){
-				befehle.btfss(opcode);
-			}
-			else if( opcode <= 0x0dff && opcode >=0x0d00){
-				befehle.rlf(opcode);
-			}
-			else if( opcode <= 0x0cff && opcode >=0x0c00){
-				befehle.rrf(opcode);
-			}
-			else if( opcode <= 0x3dff && opcode >=0x3c00){
-				befehle.sublw(opcode);
-			}
-			else if( opcode <= 0x3aff && opcode >=0x3a00){
-				befehle.xorlw(opcode);
-			}
-			else if( opcode <= 0x38ff && opcode >=0x3800){
-				befehle.iorlw(opcode);
-			}
-			else if( opcode <= 0x39ff && opcode >=0x3900){
-				befehle.andlw(opcode);
-			}
-			else if( opcode  == 0x0008){
-				befehle.ret();
-			}
-		}
-		return 0;
-	}
-	
 	public void nextStep(){
 		
 		isInterrupt();
@@ -263,6 +150,9 @@ public class Steuerung {
 		else if( opcode  == 0x0008){
 			befehle.ret();
 		}
+		else if( opcode  == 0x0009){
+			befehle.retfie();
+		}
 	}
 	
 	public int getProgramcounter() {
@@ -305,7 +195,9 @@ public class Steuerung {
 	}
 	
 	public void startTimer(){
-		takt.taktgeber();
+		if (takt.isStartet() == false){
+			takt.taktgeber();
+		}
 	}
 	
 	public void stopTimer()
@@ -313,7 +205,12 @@ public class Steuerung {
 		takt.stoptaktgeber();
 	}
 	
-	
+	public void reset(){
+		register.reset();
+		refreshRegister();
+		setMarkierungtxt();
+		takt.stoptaktgeber();
+	}
 	
 	
 	public String[][] getRegisterArray()
@@ -371,19 +268,19 @@ public class Steuerung {
 	private boolean isInterrupt(){
 			// Global Interrupt
 			boolean interrupt = false;
-			if ((register.getWert(0xB) & 128) == 1) {
+			if ((register.getWert(0xB) & 128) == 128) {
 				// TMR0 Interrupt
-				if (((register.getWert(0xB) & 32) == 1) && ((register.getWert(0xB)&4) == 1)) {
+				if (((register.getWert(0xB) & 32) == 32) && ((register.getWert(0xB)&4) == 4)) {
 					interrupt = true;
 					System.err.println("TMR0 Interrupt!");
 				}
 				// RB0 Interrupt
-				if (((register.getWert(0xB) & 16) == 1) && ((register.getWert(0xB)&2) == 1)) {
+				if (((register.getWert(0xB) & 16) == 16) && ((register.getWert(0xB)&2) == 2)) {
 					interrupt = true;
 					System.err.println("RB0 Interrupt!");
 				}
 				// RB-Change Interrupt
-				if (((register.getWert(0xB) & 8) == 1) && ((register.getWert(0xB)&1) == 1)) {
+				if (((register.getWert(0xB) & 8) == 8) && ((register.getWert(0xB)&1) == 1)) {
 					interrupt = true;
 					System.err.println("Port RB Interrupt!");
 				}
@@ -397,6 +294,41 @@ public class Steuerung {
 			return interrupt;
 	}
 	
+	public void portBInterrupt(int pNewVal, int pOldVal) {
+		int oldVal = pOldVal;
+		int newVal = pNewVal;
+		boolean oldB;
+		if (oldVal == 1){
+			oldB = true;
+		}
+		else{
+			oldB = false;
+		}
+		boolean newB;
+		if (newVal == 1){
+			newB = true;
+		}
+		else{
+			newB = false;
+		}
+		final int MASK = 0xF0;
+		// set PortB Pin 4:7 Interruptflag
+		if (((oldVal & MASK) ^ (newVal & MASK)) != 0) {
+			register.setBit(0xB, 0);
+		}
+		// check Option-Register Bit 6 (RB0 Interrupt Flank)
+		
+		if ((register.getWertOhneBank(0x81) & 64) == 64) {
+			if (newB && !oldB) {
+				register.setBit(0xB, 1);
+			}
+		} else {
+			if (!newB && oldB) {
+				register.setBit(0xB, 1);
+			}
+		}
+	}
+	
 	public void incTMR0(){
 		int val = register.getWertOhneBank(0x01);
 		val++;
@@ -406,7 +338,38 @@ public class Steuerung {
 		if(val == 0){
 			register.setBit(0xb, 2);
 		}
-		register.setWertOhneBank(0x1, (short)val);
+		register.setWertOhneBank(0x01, (short)val);
+	}
+	
+	public void portATMR0(int pNewVal, int pOldVal) {
+		int oldVal = pOldVal;
+		int newVal = pNewVal;
+		boolean oldB;
+		if (oldVal == 1){
+			oldB = true;
+		}
+		else{
+			oldB = false;
+		}
+		boolean newB;
+		if (newVal == 1){
+			newB = true;
+		}
+		else{
+			newB = false;
+		}
+		if ((register.getWertOhneBank(0x81) & 32) == 32) {
+			if ((register.getWertOhneBank(0x81) & 16) == 16) {
+				if (!newB && oldB) {
+					incTMR0();
+				} 
+				
+			}else{
+				if (newB && !oldB) {
+					incTMR0();
+				}
+			}
+		}
 	}
 
 	public void editPort(String port, int spalte, String val) {
