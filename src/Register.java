@@ -5,6 +5,9 @@ public class Register {
 
 
 	private short register[];
+	private short trisA[];
+	private short trisB[];
+	private short trisC[];
 	private int w;
 	private Stack<Integer> stack;
 //	private int programcounter = 0;
@@ -36,29 +39,53 @@ public class Register {
 		stack = new Stack<Integer>();
 	}
 	
+	/**
+	 * Gibt W-Register zurück
+	 * @return
+	 */
 	public int getW() {
 		return w;
 	}
 
+	/**
+	 * Setzt neuen Wert in W-Register
+	 * @param w
+	 */
 	public void setW(int w) {
 		this.w = w;
 	}
 	
+	/**
+	 * Gibt Programmcounter zurück
+	 * @return
+	 */
 	public int getPC(){
 		
 		return getWert(0x02);
 	}
 	
+	/**
+	 * Setzt neuen Wert in Programmcounter
+	 * @param val
+	 */
 	public void setPC(int val){
 		setWert(0x02, (short)val);
 	}
 	
+	/**
+	 * gibt Register-Array zurück
+	 * @return
+	 */
 	public short[] getRegister(){
 		return register;
 	}
 	
 	
-	
+	/**
+	 * Setzt Wert in Register mit Banküberprüfung
+	 * @param regIndex
+	 * @param wert
+	 */
 	public void setWert(int regIndex, short wert){
 		
 		if(regIndex == 0x00){
@@ -111,6 +138,12 @@ public class Register {
 		
 	}
 	
+	/**
+	 * Gibt Wert aus Register zurück
+	 * Mit Banküberprüfung
+	 * @param regIndex
+	 * @return
+	 */
 	public short getWert(int regIndex){
 		if(regIndex == 0x00){
 			regIndex = getWert(0x04);
@@ -137,14 +170,29 @@ public class Register {
 		
 	}
 	
+	/**
+	 * Gibt Wert aus Register zurück
+	 * Ohne Banküberprüfung
+	 * @param regIndex
+	 * @return
+	 */
 	public short getWertOhneBank(int regIndex){
 		return register[regIndex];
 	}
 	
+	/**
+	 * Setzt Werte in Register ohne Banküberprüfung
+	 * @param regIndex
+	 * @param val
+	 */
 	public void setWertOhneBank(int regIndex, short val){
 		register[regIndex] = val;
 	}
 	
+	/**
+	 * Gibt Bank zurück
+	 * @return
+	 */
 	private int getBank() {
 		int shift = 1;
 		shift = shift << 5;
@@ -155,6 +203,11 @@ public class Register {
 		}
 	}
 
+	/**
+	 * Setzt Bit (bitNr) in Register (regIndex)
+	 * @param regIndex
+	 * @param bitNr
+	 */
 	public void setBit(int regIndex, int bitNr){
 		int bit = 1;
 		bit = bit << bitNr;
@@ -205,6 +258,11 @@ public class Register {
 		
 	}
 	
+	/**
+	 * Cleared Bit (bitNr) in Register (regIndex)
+	 * @param regIndex
+	 * @param bitNr
+	 */
 	public void clearBit(int regIndex, int bitNr){
 		int bit = 1;
 		bit = bit << bitNr;
@@ -256,11 +314,18 @@ public class Register {
 		
 	}
 
+	/**
+	 * Gibt den obersten Wert auf dem Stack zurück und entfernt ihn aus dem Stack
+	 * @return
+	 */
 	public int getStackHead() {
 		// TODO Auto-generated method stub
 		return stack.pop();
 	}
-
+	
+	/**
+	 * Setzt das Register auf die Default-Werte zurück
+	 */
 	public void reset() {
 		register = new short[0x100];
 		for(int i = 0; i< this.register.length; i++){

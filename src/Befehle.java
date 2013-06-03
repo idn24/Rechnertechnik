@@ -7,10 +7,6 @@ public class Befehle {
 		this.strg = strg;
 	}
 	
-	public void setBit(int opcode){
-		
-	}
-	
 	public void clr(int opcode){
 		if(0x17f >= opcode && opcode >= 0x100){
 			strg.setW(0);
@@ -43,10 +39,6 @@ public class Befehle {
 			strg.getRegisterClass().setWert(f, (short)val);
 		}
 		strg.incPCounter();
-	}
-	
-	public void or(int opcode){
-		
 	}
 	
 	public void addlw(int opcode){

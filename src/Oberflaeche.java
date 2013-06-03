@@ -200,7 +200,7 @@ public class Oberflaeche extends JFrame {
 		
 	      
 	      String[][] DatenPortsRA = {
-				    { "Tris", "0", "0", "0", "0", "0", "0", "0", "0" }, { "Pin", "0", "0", "0", "0", "0", "0", "0", "0" },
+				    { "Tris", "0", "0", "0", "1", "1", "1", "1", "1" }, { "Pin", "0", "0", "0", "0", "0", "0", "0", "0" },
 	      };
 	      String[] TitelPortsRA = {"RA", "7", "6", "5", "4", "3", "2", "1", "0"};
 	      DefaultTableModel tabModelRA = new DefaultTableModel(DatenPortsRA, TitelPortsRA);
@@ -218,13 +218,18 @@ public class Oberflaeche extends JFrame {
 	    		  inhaltZelle = (String) tablePortsRA.getValueAt(reihe, spalte);
 	    		  System.out.println("RA - Reihe: " + reihe + " - Spalte: " + spalte);
 	    		  if (reihe == 1){
+	    			  String tris = (String) tablePortsRA.getValueAt(reihe-1, spalte);
 	    			  if (inhaltZelle.equals("0"))
 	    			  {
-	    				  tablePortsRA.setValueAt("1", reihe, spalte);
+	    				  if(tris.equals("1")){
+	    					  tablePortsRA.setValueAt("1", reihe, spalte);
+	    				  }
 	    			  }
 	    			  else
 	    			  {
-	    				  tablePortsRA.setValueAt("0", reihe, spalte);
+	    				  if(tris.equals("1")){
+	    					  tablePortsRA.setValueAt("0", reihe, spalte);
+	    				  }
 	    			  }
 	    			  Oberflaeche.this.strg.portATMR0(Integer.valueOf((String) tablePortsRA.getValueAt(reihe, spalte)), Integer.valueOf(inhaltZelle));
 	    			  Oberflaeche.this.strg.editPort("A", spalte, (String) tablePortsRA.getValueAt(reihe, spalte));
@@ -240,7 +245,7 @@ public class Oberflaeche extends JFrame {
 	      
 	      
 	      String[][] DatenPortsRB = {
-				    { "Tris", "0", "0", "0", "0", "0", "0", "0", "0" }, { "Pin", "0", "0", "0", "0", "0", "0", "0", "0" },
+				    { "Tris", "1", "1", "1", "1", "1", "1", "1", "1" }, { "Pin", "0", "0", "0", "0", "0", "0", "0", "0" },
 	      };
 	      String[] TitelPortsRB = {"RB", "7", "6", "5", "4", "3", "2", "1", "0"};
 	      DefaultTableModel tabModelRB = new DefaultTableModel(DatenPortsRB, TitelPortsRB);
@@ -257,14 +262,22 @@ public class Oberflaeche extends JFrame {
 	    		  spalte = Oberflaeche.this.tablePortsRB.getSelectedColumn();
 	    		  inhaltZelle = (String) Oberflaeche.this.tablePortsRB.getValueAt(reihe, spalte);
 	    		  System.out.println("RB - Reihe: " + reihe + " - Spalte: " + spalte);
+	    		  //prüft ob Port geklickt wurde
 	    		  if (reihe == 1){
+	    			  String tris = (String) tablePortsRB.getValueAt(reihe-1, spalte);
 	    			  if (inhaltZelle.equals("0"))
 	    			  {
-	    				  tablePortsRB.setValueAt("1", reihe, spalte);
+	    				  //prüft ob Tris gesetzt ist
+	    				  if(tris.equals("1")){
+	    					  tablePortsRB.setValueAt("1", reihe, spalte);
+	    				  }
 	    			  }
 	    			  else
 	    			  {
-	    				  tablePortsRB.setValueAt("0", reihe, spalte);
+	    				  //prüft ob Tris gesetzt ist
+	    				  if(tris.equals("0")){
+	    					  tablePortsRB.setValueAt("1", reihe, spalte);
+	    				  }
 	    			  }
 	    			  Oberflaeche.this.strg.portBInterrupt(Integer.valueOf((String) tablePortsRB.getValueAt(reihe, spalte)), Integer.valueOf(inhaltZelle));
 	    			  Oberflaeche.this.strg.editPort("B", spalte,(String) tablePortsRB.getValueAt(reihe, spalte));
@@ -422,7 +435,10 @@ public class Oberflaeche extends JFrame {
 	
 	
 
-	
+	/**
+	 * Erneuert sämtliche Speicher und Register
+	 * @param speicher
+	 */
 	public void refreshSpeicher(String[][] speicher){
 		int anzahlZeilenInTabelle = tableSpeicher.getRowCount();
 		for (int i=0; i < anzahlZeilenInTabelle; i++)
@@ -442,14 +458,18 @@ public class Oberflaeche extends JFrame {
 		lblWertPC.setText(Integer.toHexString(strg.getProgramcounter()));
 		lblWertFSR.setText(Integer.toHexString(strg.getRegisterClass().getWertOhneBank(0x04)));
 		int valPortA = strg.getRegisterClass().getWertOhneBank(0x05);
+		int valTrisA = strg.getRegisterClass().getWertOhneBank(0x85);
 		int valPortB = strg.getRegisterClass().getWertOhneBank(0x06);
+		int valTrisB = strg.getRegisterClass().getWertOhneBank(0x86);
 		int valPortC = strg.getRegisterClass().getWertOhneBank(0x07);
 		int valStatus = strg.getRegisterClass().getWert(0x03);
 		int valInterrupt = strg.getRegisterClass().getWert(0x0b);
 		String stringStatus = Integer.toBinaryString(valStatus + 256);
 		String stringInterrupt = Integer.toBinaryString(valInterrupt + 256);
 		String stringPortA = Integer.toBinaryString(valPortA + 256);
+		String stringTrisA = Integer.toBinaryString(valTrisA + 256);
 		String stringPortB = Integer.toBinaryString(valPortB + 256);
+		String stringTrisB = Integer.toBinaryString(valTrisB + 256);
 		String stringPortC = Integer.toBinaryString(valPortC + 256);
 		tablePortsRA.setValueAt(String.valueOf(stringPortA.charAt(8)), 1, 8);
 		tablePortsRA.setValueAt(String.valueOf(stringPortA.charAt(7)), 1, 7);
@@ -459,6 +479,22 @@ public class Oberflaeche extends JFrame {
 		tablePortsRA.setValueAt(String.valueOf(stringPortA.charAt(3)), 1, 3);
 		tablePortsRA.setValueAt(String.valueOf(stringPortA.charAt(2)), 1, 2);
 		tablePortsRA.setValueAt(String.valueOf(stringPortA.charAt(1)), 1, 1);
+		tablePortsRA.setValueAt(String.valueOf(stringTrisA.charAt(8)), 0, 8);
+		tablePortsRA.setValueAt(String.valueOf(stringTrisA.charAt(7)), 0, 7);
+		tablePortsRA.setValueAt(String.valueOf(stringTrisA.charAt(6)), 0, 6);
+		tablePortsRA.setValueAt(String.valueOf(stringTrisA.charAt(5)), 0, 5);
+		tablePortsRA.setValueAt(String.valueOf(stringTrisA.charAt(4)), 0, 4);
+		tablePortsRA.setValueAt(String.valueOf(stringTrisA.charAt(3)), 0, 3);
+		tablePortsRA.setValueAt(String.valueOf(stringTrisA.charAt(2)), 0, 2);
+		tablePortsRA.setValueAt(String.valueOf(stringTrisA.charAt(1)), 0, 1);
+		tablePortsRB.setValueAt(String.valueOf(stringTrisB.charAt(8)), 0, 8);
+		tablePortsRB.setValueAt(String.valueOf(stringTrisB.charAt(7)), 0, 7);
+		tablePortsRB.setValueAt(String.valueOf(stringTrisB.charAt(6)), 0, 6);
+		tablePortsRB.setValueAt(String.valueOf(stringTrisB.charAt(5)), 0, 5);
+		tablePortsRB.setValueAt(String.valueOf(stringTrisB.charAt(4)), 0, 4);
+		tablePortsRB.setValueAt(String.valueOf(stringTrisB.charAt(3)), 0, 3);
+		tablePortsRB.setValueAt(String.valueOf(stringTrisB.charAt(2)), 0, 2);
+		tablePortsRB.setValueAt(String.valueOf(stringTrisB.charAt(1)), 0, 1);
 		tablePortsRB.setValueAt(String.valueOf(stringPortB.charAt(8)), 1, 8);
 		tablePortsRB.setValueAt(String.valueOf(stringPortB.charAt(7)), 1, 7);
 		tablePortsRB.setValueAt(String.valueOf(stringPortB.charAt(6)), 1, 6);
@@ -493,6 +529,10 @@ public class Oberflaeche extends JFrame {
 		tableInterrupt.setValueAt(String.valueOf(stringInterrupt.charAt(1)), 0, 0);
 	}
 	
+	/**
+	 * Markiert die aktuelle Zeile
+	 * @param Zeilennummer
+	 */
 	public void markiereZeile (int Zeilennummer){
 		Zeilennummer --;
 		tableDatei.removeRowSelectionInterval(aktuelleZeile, aktuelleZeile);
@@ -504,7 +544,10 @@ public class Oberflaeche extends JFrame {
 		scrollbar.repaint();
 	}
 	
-	
+	/**
+	 * Fügt Zeile zu Tabelle hinzu
+	 * @param zeile
+	 */
 	public void setZeile(String zeile){
 		String [] zeileeinf = new String[] {zeile};
 		Modell.addRow(zeileeinf);

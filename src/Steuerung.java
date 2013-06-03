@@ -21,13 +21,18 @@ public class Steuerung {
 		takt = new Takt(this);
 	}
 	
+	/**
+	 * Ist für das oeffnen der Programme verantwortlich
+	*/
 	public void oeffneDatei(){
 		chooser = new FileChooser();
 		String pfad = chooser.oeffnen();
 		leseDatei(pfad);
 	}
 	
-	
+	/**
+	 * Liest die ausgewählte Datei aus
+	*/
 	private void leseDatei(String pfad){
 		int AnzahlZeilen = gui.getAnzahlZeilen();
 		for (int i=1; i < AnzahlZeilen; i++){
@@ -35,16 +40,17 @@ public class Steuerung {
 		}
 		read = new FileHandler();
 		programm = new Programm(read.getDatei(pfad));
-		//HIER GEÄNDERT
-
 
 		for (int i=0; i < programm.getDatei().size(); i++){
 		gui.setZeile(programm.getDatei().get(i));
 		}
-		//HIER GEÄNDERT
 		gui.clearErsteZeile();
 	}
 	
+	/**
+	 * Prüft auf Interrupts
+	 * Liest Opcode-Wert aus und ruft passenden Befehl aus
+	 */
 	public void nextStep(){
 		
 		isInterrupt();
@@ -84,9 +90,6 @@ public class Steuerung {
 		else if( opcode <= 0x00FF && opcode >=0x0080){
 			befehle.movwf(opcode);
 		}
-	/*	else if( opcode <= 0x0060 && opcode >=0x0000){
-			befehle.nop(opcode);
-		}*/
 		else if( opcode <= 0x0dff && opcode >=0x0d00){
 			befehle.rlf(opcode);
 		}
@@ -155,22 +158,41 @@ public class Steuerung {
 		}
 	}
 	
+	/**
+	 * Gibt Programmcounter zurück
+	 * @return
+	 */
 	public int getProgramcounter() {
 		return register.getPC();
 	}
-
+	
+	/**
+	 * Setzt Programmcounter
+	 * @param programcounter
+	 */
 	public void setProgramcounter(int programcounter) {
 		register.setPC(programcounter);
 	}
 	
+	/**
+	 * erhöht PC um 1
+	 */
 	public void incPCounter() {
 		register.setPC(register.getPC()+1);
 	}
-
+	
+	/**
+	 * Gibt das Register-Objekt zurück
+	 * @return
+	 */
 	public Register getRegisterClass() {
 		return register;
 	}
 	
+	/**
+	 * Gibt Register-Array zurück
+	 * @return
+	 */
 	public short[] getRegister(){
 		return register.getRegister();
 	}
@@ -179,32 +201,56 @@ public class Steuerung {
 		this.register = register;
 	}
 	
+	/**
+	 * Neuer Wert wird im W-Register gespeichert
+	 * @param wert
+	 */
 	public void setW(int wert){
 		register.setW(wert);
 	}
+	
+	/**
+	 * Gibt W-Register zurück
+	 * @return
+	 */
 	public int getW(){
 		return register.getW();
 	}
 	
+	/**
+	 * Legt aktuellen Programmcounter-Wert auf den Stack
+	 */
 	public void pushCall(){
 		register.setStack(register.getPC()+1);
 	}
 	
+	/**
+	 * Markiert die aktuelle Zeile
+	 */
 	public void setMarkierungtxt(){
 		gui.markiereZeile(programm.getZeile(register.getPC()));
 	}
 	
+	/**
+	 * Der Timer wird gestartet
+	 */
 	public void startTimer(){
 		if (takt.isStartet() == false){
 			takt.taktgeber();
 		}
 	}
 	
+	/**
+	 * Stoppt Timer
+	 */
 	public void stopTimer()
 	{
 		takt.stoptaktgeber();
 	}
 	
+	/**
+	 * Setzt alle Register und Ports zurück
+	 */
 	public void reset(){
 		register.reset();
 		refreshRegister();
@@ -212,7 +258,10 @@ public class Steuerung {
 		takt.stoptaktgeber();
 	}
 	
-	
+	/**
+	 * Gibt RegisterArray als String zurück
+	 * @return
+	 */
 	public String[][] getRegisterArray()
 	{
 		String[][] DatenSpeicher = new String[32][9];
@@ -261,28 +310,31 @@ public class Steuerung {
 		return DatenSpeicher;
 	}
 	
+	/**
+	 * Erneuert die Oberfläche
+	 */
 	public void refreshRegister(){
 		gui.refreshSpeicher(this.getRegisterArray());
 	}
 	
-	private boolean isInterrupt(){
+	/**
+	 * Prüft ob ein Interrupt eingetreten ist 
+	 */
+	private void isInterrupt(){
 			// Global Interrupt
 			boolean interrupt = false;
 			if ((register.getWert(0xB) & 128) == 128) {
 				// TMR0 Interrupt
 				if (((register.getWert(0xB) & 32) == 32) && ((register.getWert(0xB)&4) == 4)) {
 					interrupt = true;
-					System.err.println("TMR0 Interrupt!");
 				}
 				// RB0 Interrupt
 				if (((register.getWert(0xB) & 16) == 16) && ((register.getWert(0xB)&2) == 2)) {
 					interrupt = true;
-					System.err.println("RB0 Interrupt!");
 				}
 				// RB-Change Interrupt
 				if (((register.getWert(0xB) & 8) == 8) && ((register.getWert(0xB)&1) == 1)) {
 					interrupt = true;
-					System.err.println("Port RB Interrupt!");
 				}
 			}
 			if (interrupt) {
@@ -291,9 +343,13 @@ public class Steuerung {
 				setProgramcounter(0x4);
 				register.setWert(0x2, (short)0x4);
 			}
-			return interrupt;
 	}
 	
+	/**
+	 * Bei Änderung von PortB wird auf Interrupt geprüft
+	 * @param pNewVal Neuer Wert für das Bit
+	 * @param pOldVal Alter Wert von dem Bit
+	 */
 	public void portBInterrupt(int pNewVal, int pOldVal) {
 		int oldVal = pOldVal;
 		int newVal = pNewVal;
@@ -329,6 +385,9 @@ public class Steuerung {
 		}
 	}
 	
+	/**
+	 * Erhöht den TMR0 um eins und setzt das bit 2 im Register 0Bh bei Überlauf
+	 */
 	public void incTMR0(){
 		int val = register.getWertOhneBank(0x01);
 		val++;
@@ -341,6 +400,11 @@ public class Steuerung {
 		register.setWertOhneBank(0x01, (short)val);
 	}
 	
+	/**
+	 * Prüft auf TMRO Interrupt
+	 * @param pNewVal
+	 * @param pOldVal
+	 */
 	public void portATMR0(int pNewVal, int pOldVal) {
 		int oldVal = pOldVal;
 		int newVal = pNewVal;
@@ -371,7 +435,13 @@ public class Steuerung {
 			}
 		}
 	}
-
+	
+	/**
+	 * Editiert die Ports und aktuallisiert die Oberfläche
+	 * @param port
+	 * @param spalte
+	 * @param val
+	 */
 	public void editPort(String port, int spalte, String val) {
 		int bit = 0;
 		int value = Integer.valueOf(val);

@@ -10,7 +10,11 @@ public class FileChooser {
 	public FileChooser(){
 		
 	}
-
+	
+	/**
+	 * Gibt Pfad der ausgewählten Datei zurück
+	 * @return
+	 */
     public String oeffnen() {
     	String pfad ="";
     	// JFileChooser-Objekt erstellen

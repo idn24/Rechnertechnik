@@ -9,6 +9,11 @@ public class FileHandler {
 
 	ArrayList<String> datei = new ArrayList<String>();
 	
+	/**
+	 * Lässt eine ArrayList erstellen und gibt diese zurück
+	 * @param pfad
+	 * @return
+	 */
 	public ArrayList<String> getDatei(String pfad) {
 		// TODO Auto-generated method stub
 		try {
@@ -20,6 +25,11 @@ public class FileHandler {
 		return datei;
 	}
 	
+	/**
+	 * Liest die Zeilen aus und Speichert sie in einer ArrayList
+	 * @param pfad
+	 * @throws IOException
+	 */
 	private void readDatei(String pfad) throws IOException {
 		FileReader fr;
 		fr = new FileReader(pfad);

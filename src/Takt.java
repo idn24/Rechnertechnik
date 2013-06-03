@@ -16,7 +16,9 @@ public class Takt {
 		this.strg = strg;
 	}
 	
-
+	/**
+	 * Takt für den Programmablauf
+	 */
 	public void taktgeber(){
 		startet = true;
 		TimerTask action = new TimerTask() {
@@ -39,7 +41,9 @@ public class Takt {
 		timer.schedule(action, 0, 200);
 	}
 	
-	
+	/**
+	 * Stoppt den takt für Pause oder Reset
+	 */
 	public void stoptaktgeber() {
 		startet = false;
 		timer.cancel();
@@ -47,6 +51,10 @@ public class Takt {
 		
 	}
 	
+	/**
+	 * Überprüft ob das Programm bereits läuft
+	 * @return
+	 */
 	public boolean isStartet() {
 		return startet;
 	}
